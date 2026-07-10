@@ -9,7 +9,7 @@ export default function GeneratePage() {
   const [showSettings, setShowSettings] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [resolution, setResolution] = useState('1080p');
-  const [duration, setDuration] = useState('10s');
+  const [duration, setDuration] = useState(10);
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [videoCount, setVideoCount] = useState(1);
   const [selectedModel, setSelectedModel] = useState('3.0');
@@ -134,7 +134,7 @@ export default function GeneratePage() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               </svg>
-              <span className="text-sm flex-1">{resolution} · {duration} · {aspectRatio} · {videoCount}</span>
+              <span className="text-sm flex-1">{resolution} · {duration}s · {aspectRatio} · {videoCount}</span>
               <svg className="w-4 h-4 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
@@ -172,28 +172,21 @@ export default function GeneratePage() {
 
                 {/* Duration */}
                 <div>
-                  <div className="text-xs font-medium text-[#a0a0a0] mb-2">生成时长</div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setDuration('5s')}
-                      className={`flex-1 py-2 rounded text-sm transition ${
-                        duration === '5s'
-                          ? 'bg-[#6366f1] text-white'
-                          : 'bg-[#171717] text-[#a0a0a0] hover:text-white'
-                      }`}
-                    >
-                      5s
-                    </button>
-                    <button
-                      onClick={() => setDuration('10s')}
-                      className={`flex-1 py-2 rounded text-sm transition ${
-                        duration === '10s'
-                          ? 'bg-[#6366f1] text-white'
-                          : 'bg-[#171717] text-[#a0a0a0] hover:text-white'
-                      }`}
-                    >
-                      10s
-                    </button>
+                  <div className="text-xs font-medium text-[#a0a0a0] mb-3">生成时长 {duration}s</div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-[#a0a0a0] min-w-fit">3s</span>
+                    <input
+                      type="range"
+                      min="3"
+                      max="15"
+                      value={duration}
+                      onChange={(e) => setDuration(Number(e.target.value))}
+                      className="flex-1 h-1 bg-[#2a2a2a] rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${((duration - 3) / 12) * 100}%, #2a2a2a ${((duration - 3) / 12) * 100}%, #2a2a2a 100%)`
+                      }}
+                    />
+                    <span className="text-xs text-[#a0a0a0] min-w-fit">15s</span>
                   </div>
                 </div>
 
