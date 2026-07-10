@@ -1,18 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import NavBar from '../components/NavBar';
 
 export default function MotionControlPage() {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [motionVideoUploaded, setMotionVideoUploaded] = useState(false);
-  const [humanImageUploaded, setHumanImageUploaded] = useState(false);
+  const [motionVideo, setMotionVideo] = useState<File | null>(null);
+  const [humanImage, setHumanImage] = useState<File | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [resolution, setResolution] = useState('720p');
   const [videoCount, setVideoCount] = useState(1);
   const [selectedModel, setSelectedModel] = useState('3.0');
+  const motionVideoInputRef = useRef<HTMLInputElement>(null);
+  const humanImageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleMotionVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setMotionVideo(e.target.files[0]);
+    }
+  };
+
+  const handleHumanImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setHumanImage(e.target.files[0]);
+    }
+  };
+
+  const triggerMotionVideoInput = () => {
+    motionVideoInputRef.current?.click();
+  };
+
+  const triggerHumanImageInput = () => {
+    humanImageInputRef.current?.click();
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#0e0f0f] text-white overflow-hidden">
@@ -91,24 +113,33 @@ export default function MotionControlPage() {
               {/* Motion Video Upload with Radio */}
               <div className="flex-1 flex flex-col gap-3">
                 <div className="text-sm font-medium">动作的视频</div>
-                <div className={`border-2 border-dashed rounded-lg p-6 text-center transition cursor-pointer h-40 flex flex-col items-center justify-center ${
-                  motionVideoUploaded
-                    ? 'border-[#6366f1] bg-[#0f0f0f]'
-                    : 'border-[#2a2a2a] hover:border-[#6366f1]'
-                }`}>
-                  {motionVideoUploaded ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <svg className="w-8 h-8 text-[#6366f1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <div className="text-sm text-white">已上传</div>
+                <div
+                  onClick={triggerMotionVideoInput}
+                  className="border-2 border-dashed rounded-lg p-6 text-center transition cursor-pointer h-40 flex flex-col items-center justify-center overflow-hidden relative group hover:border-[#6366f1]"
+                  style={{
+                    borderColor: motionVideo ? '#6366f1' : '#2a2a2a',
+                    backgroundColor: motionVideo ? '#0f0f0f' : 'transparent',
+                  }}
+                >
+                  {motionVideo ? (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col items-center justify-center gap-2">
+                        <svg className="w-12 h-12 text-[#6366f1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div className="text-xs text-[#a0a0a0]">{motionVideo.name}</div>
+                      </div>
                       <button
-                        onClick={() => setMotionVideoUploaded(false)}
-                        className="text-xs text-[#6366f1] hover:text-white transition"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMotionVideo(null);
+                        }}
+                        className="absolute bottom-2 right-2 text-xs text-[#6366f1] hover:text-white transition bg-black/70 px-2 py-1 rounded opacity-0 group-hover:opacity-100"
                       >
-                        重新上传
+                        移除
                       </button>
-                    </div>
+                    </>
                   ) : (
                     <>
                       <svg className="w-6 h-6 mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,6 +150,13 @@ export default function MotionControlPage() {
                     </>
                   )}
                 </div>
+                <input
+                  ref={motionVideoInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleMotionVideoUpload}
+                  className="hidden"
+                />
                 {/* Radio: Scene Direction */}
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="direction" className="w-4 h-4" defaultChecked />
@@ -129,24 +167,36 @@ export default function MotionControlPage() {
               {/* Human Image Upload with Radio */}
               <div className="flex-1 flex flex-col gap-3">
                 <div className="text-sm font-medium">人物图</div>
-                <div className={`border-2 border-dashed rounded-lg p-6 text-center transition cursor-pointer h-40 flex flex-col items-center justify-center ${
-                  humanImageUploaded
-                    ? 'border-[#6366f1] bg-[#0f0f0f]'
-                    : 'border-[#2a2a2a] hover:border-[#6366f1]'
-                }`}>
-                  {humanImageUploaded ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <svg className="w-8 h-8 text-[#6366f1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <div className="text-sm text-white">已上传</div>
-                      <button
-                        onClick={() => setHumanImageUploaded(false)}
-                        className="text-xs text-[#6366f1] hover:text-white transition"
-                      >
-                        重新上传
-                      </button>
-                    </div>
+                <div
+                  onClick={triggerHumanImageInput}
+                  className="border-2 border-dashed rounded-lg p-6 text-center transition cursor-pointer h-40 flex flex-col items-center justify-center overflow-hidden relative group hover:border-[#6366f1]"
+                  style={{
+                    borderColor: humanImage ? '#6366f1' : '#2a2a2a',
+                    backgroundColor: humanImage ? '#0f0f0f' : 'transparent',
+                  }}
+                >
+                  {humanImage ? (
+                    <>
+                      <img
+                        src={URL.createObjectURL(humanImage)}
+                        alt="human"
+                        className="w-full h-full object-cover absolute inset-0"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                        <svg className="w-8 h-8 text-[#6366f1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setHumanImage(null);
+                          }}
+                          className="text-xs text-[#6366f1] hover:text-white transition bg-black/70 px-2 py-1 rounded"
+                        >
+                          重新上传
+                        </button>
+                      </div>
+                    </>
                   ) : (
                     <>
                       <svg className="w-6 h-6 mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,6 +207,13 @@ export default function MotionControlPage() {
                     </>
                   )}
                 </div>
+                <input
+                  ref={humanImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHumanImageUpload}
+                  className="hidden"
+                />
                 {/* Radio: Image Direction */}
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="direction" className="w-4 h-4" />
@@ -249,13 +306,13 @@ export default function MotionControlPage() {
             {/* Generate Button */}
             <button
               onClick={() => {
-                if (motionVideoUploaded && humanImageUploaded) {
+                if (motionVideo && humanImage) {
                   setIsGenerating(!isGenerating);
                 }
               }}
-              disabled={!motionVideoUploaded || !humanImageUploaded || isGenerating}
+              disabled={!motionVideo || !humanImage || isGenerating}
               className={`w-full py-3 rounded font-semibold transition flex items-center justify-center gap-2 ${
-                isGenerating || !motionVideoUploaded || !humanImageUploaded
+                isGenerating || !motionVideo || !humanImage
                   ? 'bg-[#333333] text-[#666666] cursor-not-allowed'
                   : 'bg-[#6366f1] text-white hover:bg-[#4f46e5]'
               }`}

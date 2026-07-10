@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import NavBar from '../components/NavBar';
 
 export default function GeneratePage() {
@@ -13,6 +13,30 @@ export default function GeneratePage() {
   const [aspectRatio, setAspectRatio] = useState('16:9');
   const [videoCount, setVideoCount] = useState(1);
   const [selectedModel, setSelectedModel] = useState('3.0');
+  const [firstFrameImage, setFirstFrameImage] = useState<File | null>(null);
+  const [lastFrameImage, setLastFrameImage] = useState<File | null>(null);
+  const firstFrameInputRef = useRef<HTMLInputElement>(null);
+  const lastFrameInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFirstFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setFirstFrameImage(e.target.files[0]);
+    }
+  };
+
+  const handleLastFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setLastFrameImage(e.target.files[0]);
+    }
+  };
+
+  const triggerFirstFrameInput = () => {
+    firstFrameInputRef.current?.click();
+  };
+
+  const triggerLastFrameInput = () => {
+    lastFrameInputRef.current?.click();
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#0e0f0f] text-white overflow-hidden">
@@ -91,23 +115,95 @@ export default function GeneratePage() {
               {/* First Frame Upload */}
               <div className="flex-1">
                 <div className="text-sm font-medium mb-3">首帧图</div>
-                <div className="border-2 border-dashed border-[#2a2a2a] rounded-lg p-6 text-center hover:border-[#6366f1] transition cursor-pointer h-32 flex flex-col items-center justify-center">
-                  <svg className="w-6 h-6 mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <div className="text-sm text-[#a0a0a0]">点击上传</div>
+                <div
+                  onClick={triggerFirstFrameInput}
+                  className="border-2 border-dashed border-[#2a2a2a] rounded-lg p-6 text-center hover:border-[#6366f1] transition cursor-pointer h-32 flex flex-col items-center justify-center overflow-hidden relative group"
+                >
+                  {firstFrameImage ? (
+                    <>
+                      <img
+                        src={URL.createObjectURL(firstFrameImage)}
+                        alt="first frame"
+                        className="w-full h-full object-cover absolute inset-0"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                        <svg className="w-6 h-6 text-[#6366f1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFirstFrameImage(null);
+                          }}
+                          className="text-xs text-[#6366f1] hover:text-white transition bg-black/70 px-2 py-1 rounded"
+                        >
+                          重新上传
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6 mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <div className="text-sm text-[#a0a0a0]">点击上传</div>
+                    </>
+                  )}
                 </div>
+                <input
+                  ref={firstFrameInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFirstFrameUpload}
+                  className="hidden"
+                />
               </div>
 
               {/* Last Frame Upload */}
               <div className="flex-1">
                 <div className="text-sm font-medium mb-3">尾帧图</div>
-                <div className="border-2 border-dashed border-[#2a2a2a] rounded-lg p-6 text-center hover:border-[#6366f1] transition cursor-pointer h-32 flex flex-col items-center justify-center">
-                  <svg className="w-6 h-6 mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <div className="text-sm text-[#a0a0a0]">点击上传</div>
+                <div
+                  onClick={triggerLastFrameInput}
+                  className="border-2 border-dashed border-[#2a2a2a] rounded-lg p-6 text-center hover:border-[#6366f1] transition cursor-pointer h-32 flex flex-col items-center justify-center overflow-hidden relative group"
+                >
+                  {lastFrameImage ? (
+                    <>
+                      <img
+                        src={URL.createObjectURL(lastFrameImage)}
+                        alt="last frame"
+                        className="w-full h-full object-cover absolute inset-0"
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                        <svg className="w-6 h-6 text-[#6366f1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLastFrameImage(null);
+                          }}
+                          className="text-xs text-[#6366f1] hover:text-white transition bg-black/70 px-2 py-1 rounded"
+                        >
+                          重新上传
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6 mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <div className="text-sm text-[#a0a0a0]">点击上传</div>
+                    </>
+                  )}
                 </div>
+                <input
+                  ref={lastFrameInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLastFrameUpload}
+                  className="hidden"
+                />
               </div>
             </div>
 

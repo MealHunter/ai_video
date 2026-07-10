@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import NavBar from '../components/NavBar';
 
 export default function GeneratePage() {
@@ -13,6 +13,18 @@ export default function GeneratePage() {
   const [aspectRatio, setAspectRatio] = useState('3:4');
   const [imageCount, setImageCount] = useState(2);
   const [selectedModel, setSelectedModel] = useState('3.0');
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setUploadedImages(Array.from(e.target.files));
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#0e0f0f] text-white overflow-hidden">
@@ -95,12 +107,53 @@ export default function GeneratePage() {
             {/* Frame Upload */}
             <div>
               <div className="text-sm font-medium mb-3">参考生图</div>
-              <div className="border-2 border-dashed border-[#2a2a2a] rounded-lg p-8 text-center hover:border-[#6366f1] transition cursor-pointer">
-                <svg className="w-8 h-8 mx-auto mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <div className="text-sm text-[#a0a0a0]">点击上传图片</div>
+              <div
+                onClick={triggerFileInput}
+                className="border-2 border-dashed border-[#2a2a2a] rounded-lg p-8 text-center hover:border-[#6366f1] transition cursor-pointer min-h-32"
+              >
+                {uploadedImages.length === 0 ? (
+                  <>
+                    <svg className="w-8 h-8 mx-auto mb-2 text-[#a0a0a0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <div className="text-sm text-[#a0a0a0]">点击上传图片</div>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-3">
+                      {uploadedImages.map((file, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="w-full h-24 object-cover rounded border border-[#2a2a2a] group-hover:border-[#6366f1]"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 rounded flex items-center justify-center transition">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setUploadedImages(uploadedImages.filter((_, i) => i !== idx));
+                              }}
+                              className="text-xs text-[#6366f1] hover:text-white bg-black/70 px-2 py-1 rounded"
+                            >
+                              移除
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-xs text-[#a0a0a0] mt-2">点击重新选择或移除图片</div>
+                  </div>
+                )}
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
             </div>
 
             {/* Prompt Editor */}
